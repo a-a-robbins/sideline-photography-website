@@ -12,7 +12,10 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav 
+        class="navbar navbar-expand-lg"
+        :class="{'navbar-dark bg-dark': useDarkNavbar, 'navbar-light bg-light': !useDarkNavbar}"
+    >
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img src="assets/sp-logo.png" alt="sideline photo logo" width="30" height="24">
@@ -28,6 +31,12 @@
                         @click.prevent="activePage = index">{{page.link.text}}</a>
                 </li>
             </ul>
+            <form class="d-flex">
+                <button 
+                class="btn btn-danger"
+                @click.prevent="useDarkNavbar = !useDarkNavbar"
+                >Toggle Navbar</button>
+            </form>
         </div>
     </nav>
     <div id="content" class="container">
@@ -39,6 +48,7 @@
         Vue.createApp({
             data() {
                 return {
+                    useDarkNavbar: true,
                     activePage: 0,
                     pages: [
                         {
