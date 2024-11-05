@@ -12,35 +12,22 @@
 </head>
 
 <body>
-    <nav :class="navbarClasses">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="assets/sp-logo.png" alt="sideline photo logo" width="30" height="24">
-            </a>
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li v-for="(page, index) in pages" class="nav-item" :key="index">
-                    <a class="nav-link" :class="{active: activePage == index}" aria-current="page" :href="page.link.url"
-                        title="this goes to the {{ page.link.text }} page" @click.prevent="activePage = index">{{
-                        page.link.text }}</a>
-                </li>
-            </ul>
-            <form class="d-flex">
-                <button class="btn btn-danger" @click.prevent="changeTheme">Toggle Navbar</button>
-            </form>
-        </div>
-    </nav>
+
+    <navigation-bar
+        :pages="pages"
+        :active-page="activePage"
+        :nav-link-click="(index) => activePage = index"
+    ></navigation-bar>
 
     <page-content 
-        :page-title="pages[activePage].pageTitle" 
-        :page-content="pages[activePage].content">
-    </page-content>
+        :page="pages[activePage]"
+    ></page-content>
 
 
     <script>
         let app = Vue.createApp({
             data() {
                 return {
-                    theme: 'light',
                     activePage: 0,
                     pages: [
                         { link: { text: 'Home', url: '#' }, pageTitle: 'Home Page', content: 'This is the home page' },
@@ -50,6 +37,50 @@
                     ]
                 };
             },
+        });
+
+        app.component('page-content', {
+            props: ['page'],
+            template: `
+                <div id="content" class="container">
+                    <h1>{{ page.pageTitle}}</h1>
+                    <p>{{ page.content }}</p>
+                </div>
+            `
+        });
+
+        app.component('navigation-bar', {
+            props: ['pages', 'activePage', 'navLinkClick'],
+            template: `
+                <nav :class="navbarClasses">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="#">
+                        <img src="assets/sp-logo.png" alt="sideline photo logo" width="30" height="24">
+                        </a>
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li v-for="(page, index) in pages" class="nav-item" :key="index">
+                                <a 
+                                    class="nav-link" 
+                                    :class="{active: activePage == index}" 
+                                    aria-current="page" 
+                                    :href="page.link.url"
+                                    title="this goes to the {{ page.link.text }} page" 
+                                    @click.prevent="navLinkClick(index)"
+                                    >{{ page.link.text }}</a>
+                            </li>
+                        </ul>
+                        <form class="d-flex">
+                            <button class="btn btn-danger" @click.prevent="changeTheme">Toggle Navbar</button>
+                        </form> 
+                    </div>
+                </nav>
+            `,
+            data() {
+                return {
+                    theme: 'light'
+                };
+            }
+            ,
             computed: {
                 navbarClasses() {
                     return [`navbar-${this.theme}`, `bg-${this.theme}`, 'navbar', 'navbar-expand-lg'];
@@ -60,15 +91,6 @@
                     this.theme = this.theme === 'light' ? 'dark' : 'light';
                 }
             }
-        });
-        app.component('page-content', {
-            props: ['pageTitle', 'pageContent'],
-            template: `
-                <div id="content" class="container">
-                    <h1>{{ pageTitle}}</h1>
-                    <p>{{ pageContent }}</p>
-                </div>
-            `
         });
 
         app.mount('body');
